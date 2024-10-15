@@ -148,7 +148,7 @@ while running:
     else:
         # Game over screen with Retry and Quit buttons
         draw_text("Game Over", font, RED, SCREEN_WIDTH // 2 - 80, SCREEN_HEIGHT // 3)
-        draw_text(f"Your Score: {score}", font, BLACK, SCREEN_WIDTH // 2 - 80, SCREEN_HEIGHT // 3 + 50)
+        draw_text(f"Your Score: {score}", font, BLACK, SCREEN_WIDTH // 2 - 80, SCREEN_HEIGHT // 3 + 90)
         
         # Retry button
         draw_button("Retry", SCREEN_WIDTH // 2 - 80, SCREEN_HEIGHT // 2, 160, 50, GRAY, RED, reset_game)
