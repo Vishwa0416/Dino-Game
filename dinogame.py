@@ -17,17 +17,20 @@ FPS = 30
 WHITE = (255, 255, 255)
 BLACK = (0, 0, 0)
 
-# Load assets
-dino_img = pygame.image.load('dino.png')  # Use a small dino image file here
-cactus_img = pygame.image.load('cactus.png')  # Use a small cactus image file
+# Load assets and scale images
+dino_img = pygame.image.load('dino.png')
+cactus_img = pygame.image.load('cactus.png')
+
+# Scale the images to appropriate sizes
+dino_img = pygame.transform.scale(dino_img, (40, 40))  # Dino size: 40x40
+cactus_img = pygame.transform.scale(cactus_img, (30, 60))  # Cactus size: 30x60
 
 # Game variables
 ground_y = SCREEN_HEIGHT - 70
 dino_x, dino_y = 50, ground_y - 40
 dino_width, dino_height = 40, 40
-jump_height = 150
 jumping = False
-gravity = 10
+gravity = 1.5
 velocity_y = 0
 
 # Cactus settings
@@ -47,11 +50,20 @@ def draw_cactus(cacti):
 
 def generate_cactus():
     cactus_x = SCREEN_WIDTH
-    cactus_y = ground_y - 40
+    # Randomize cactus height by moving it vertically between two heights
+    cactus_y = random.choice([ground_y - 60, ground_y - 50, ground_y - 70])  # Random heights
     return [cactus_x, cactus_y]
 
 def detect_collision(dino_rect, cactus_rect):
     return dino_rect.colliderect(cactus_rect)
+
+def reset_game():
+    global dino_y, jumping, velocity_y, cacti, score
+    dino_y = ground_y - dino_height
+    jumping = False
+    velocity_y = 0
+    cacti = []
+    score = 0
 
 # Main game loop
 running = True
@@ -67,18 +79,18 @@ while running:
     keys = pygame.key.get_pressed()
     if keys[pygame.K_SPACE] and not jumping:
         jumping = True
-        velocity_y = -gravity * 2
+        velocity_y = -15  # Initial velocity when jumping
 
     # Dino jumping logic
     if jumping:
         dino_y += velocity_y
         velocity_y += gravity
-        if dino_y >= ground_y - dino_height:
+        if dino_y >= ground_y - dino_height:  # Ground collision detection
             dino_y = ground_y - dino_height
             jumping = False
 
-    # Generate new cactus
-    if len(cacti) == 0 or cacti[-1][0] < SCREEN_WIDTH - 200:
+    # Generate new cactus with random spacing
+    if len(cacti) == 0 or cacti[-1][0] < SCREEN_WIDTH - random.randint(150, 400):  # Randomized distance
         cacti.append(generate_cactus())
 
     # Move and draw cactus
@@ -86,16 +98,18 @@ while running:
         cactus[0] -= cactus_speed
 
     # Remove cactus if it moves off screen
-    if cacti[0][0] < -40:
+    if cacti and cacti[0][0] < -40:
         cacti.pop(0)
         score += 1  # Increase score when player dodges a cactus
 
     # Detect collisions
     dino_rect = pygame.Rect(dino_x, dino_y, dino_width, dino_height)
     for cactus in cacti:
-        cactus_rect = pygame.Rect(cactus[0], cactus[1], 40, 40)
+        cactus_rect = pygame.Rect(cactus[0], cactus[1], 30, 60)  # Adjust cactus size for collision
         if detect_collision(dino_rect, cactus_rect):
-            running = False
+            # Game Over
+            print(f"Game Over! Your score: {score}")
+            reset_game()
 
     # Draw the game objects
     draw_dino(dino_x, dino_y)
